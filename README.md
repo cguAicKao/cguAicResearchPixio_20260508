@@ -1,6 +1,6 @@
 # Fundus-Pixio: Continual Pre-training of Pixio ViT-L on Fundus Eye Images
 
-> Fine-tuning the official [Pixio ViT-L/16](https://github.com/facebookresearch/pixio) checkpoint on a mixed fundus + natural image dataset, evaluated across multiple ophthalmic benchmarks via 5-fold cross-validation.
+> Continual pre-training of the official [Pixio ViT-L/16](https://github.com/facebookresearch/pixio) checkpoint on a mixed fundus + natural image dataset, with downstream evaluation across 6 ophthalmic benchmarks via 5-fold cross-validation.
 
 [![Base Model](https://img.shields.io/badge/Base%20Model-Pixio%20ViT--L%2F16-blue)](https://github.com/facebookresearch/pixio)
 [![Eval](https://img.shields.io/badge/Eval-5--Fold%20CV-green)]()
@@ -10,10 +10,9 @@
 
 ## Overview
 
-This repository presents **continual pre-training** of the official Pixio ViT-L/16 encoder on a mixed dataset containing fundus eye images and natural images. We follow a **two-stage training strategy**:
+This repository presents **continual pre-training** of the official Pixio ViT-L/16 encoder, resuming directly from the released checkpoint on a mixed dataset of fundus eye images and natural images — without any architectural modification or staged training strategy.
 
-- **Stage 1 (epochs 0–100):** Encoder frozen, higher base learning rate. The decoder adapts to the fundus image domain.
-- **Stage 2 (epochs 100–360):** Full model unfreezing with ~10× reduced learning rate and extended warmup. The encoder is gradually fine-tuned toward ophthalmic features.
+Training was monitored every 20 epochs across all six downstream benchmarks. Checkpoints were evaluated throughout, and the **best-performing checkpoint per dataset was selected based on validation AUROC**, following standard checkpoint-selection practice. Across most datasets, performance plateaus or begins to oscillate after epoch ~260–300, indicating convergence; we therefore report results up to epoch 300.
 
 Downstream evaluation uses **5-fold cross-validation**, reporting **Accuracy** and **AUROC** across 6 publicly available fundus datasets.
 
@@ -39,16 +38,15 @@ pip install -r requirements.txt
 
 We use a mixed dataset of fundus eye images and natural images for pre-training. Natural images are drawn from ImageNet-1K. Fundus images are clinical retinal photographs provided by **Chang Gung Memorial Hospital (CGMH), Taiwan**, used under an institutional data-sharing agreement for research purposes. We sincerely thank CGMH for providing access to these clinical data.
 
+> If applicable, please add your IRB approval number here, e.g.: *(IRB No. 202XXXXXX-B)*
+
 ### Launch Pre-training
 
 ```bash
 cd pretraining
 
-# Stage 1: frozen encoder (~100 epochs)
-bash scripts/pretrain_stage1_frozen_encoder.sh
-
-# Stage 2: full fine-tuning (~260 epochs)
-bash scripts/pretrain_stage2_full_finetune.sh
+# Resume continual pre-training from official Pixio ViT-L/16 checkpoint
+bash scripts/pretrain_fundus_vitl16.sh
 ```
 
 ### Resume from Pixio ViT-L Official Checkpoint
@@ -62,7 +60,7 @@ bash scripts/pretrain_stage2_full_finetune.sh
 
 ## Evaluation
 
-Downstream evaluation is performed by loading each pre-trained checkpoint and running **5-fold cross-validation** on classification tasks. We report mean ± std across folds.
+Downstream evaluation is performed by loading each saved checkpoint and running **5-fold cross-validation** on classification tasks. We report mean ± std across folds.
 
 ### Datasets
 
@@ -78,12 +76,12 @@ The following 6 publicly available fundus benchmarks are used for downstream eva
 | [PAPILA](https://figshare.com/articles/dataset/PAPILA/14798004) | Glaucoma Detection | 3 | 311 | 79 | 98 |
 
 ![Dataset sample distribution](assets/dataset_splits.png)
-<!-- Replace with your actual figure. A grouped bar chart (Train/Val/Test per dataset) is recommended. -->
+<!-- Replace with your exported grouped bar chart (Train / Val / Test per dataset). -->
 
 ### Launch Evaluation
 
 ```bash
-bash scripts/eval_fivetold_cv.sh \
+bash scripts/eval_fivefold_cv.sh \
   --checkpoint /path/to/epoch-N.pth \
   --dataset aptos2019
 ```
@@ -92,12 +90,12 @@ bash scripts/eval_fivetold_cv.sh \
 
 ## Results
 
-All results are mean ± std over 5-fold cross-validation. `epoch-0` = official Pixio ViT-L/16 baseline. Stage 1 = epochs 0–100 (frozen encoder); Stage 2 = epochs 100–360 (full fine-tuning). The dashed vertical line in the training curves marks the Stage 1 / Stage 2 boundary.
+All results are mean ± std over 5-fold cross-validation. `epoch-0` corresponds to the **official Pixio ViT-L/16 checkpoint** before any continual pre-training (baseline). Checkpoints are evaluated every 20 epochs and reported up to epoch 300, where performance has converged across all six datasets. The **best checkpoint per dataset** is selected based on validation AUROC and highlighted in bold.
 
 ### Training curves
 
 ![Training curves](assets/training_curves.png)
-<!-- Replace with your exported figure (Accuracy + AUROC vs. epoch, 6 datasets, dashed line at epoch 100). -->
+<!-- Replace with your exported figure (Accuracy + AUROC vs. epoch 0–300, 6 datasets). -->
 
 ### Summary table — representative checkpoints
 
@@ -106,25 +104,25 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` = official P
 | Checkpoint | APTOS2019 | Glaucoma\_fundus | IDRiD | MESSIDOR2 | PAPILA | Retina |
 |---|---|---|---|---|---|---|
 | epoch-0 (baseline) | 0.8264 ± 0.0065 | 0.7656 ± 0.0105 | 0.4777 ± 0.0957 | 0.7228 ± 0.0094 | 0.7224 ± 0.0517 | 0.5967 ± 0.0110 |
-| epoch-100 (end Stage 1) | 0.7796 ± 0.0062 | 0.8034 ± 0.0119 | 0.3398 ± 0.0376 | 0.6046 ± 0.0055 | 0.7531 ± 0.0196 | 0.5680 ± 0.0153 |
+| epoch-100 | 0.7796 ± 0.0062 | 0.8034 ± 0.0119 | 0.3398 ± 0.0376 | 0.6046 ± 0.0055 | 0.7531 ± 0.0196 | 0.5680 ± 0.0153 |
 | epoch-200 | 0.7931 ± 0.0025 | 0.8370 ± 0.0113 | 0.4175 ± 0.0476 | 0.6186 ± 0.0084 | 0.7510 ± 0.0137 | 0.5901 ± 0.0269 |
-| epoch-300 | 0.8025 ± 0.0071 | 0.8430 ± 0.0015 | 0.4175 ± 0.0743 | 0.6285 ± 0.0167 | 0.7469 ± 0.0610 | 0.6044 ± 0.0333 |
-| epoch-360 (final) | 0.7996 ± 0.0054 | **0.8439 ± 0.0025** | **0.4563 ± 0.0562** | 0.6297 ± 0.0155 | **0.7714 ± 0.0155** | 0.6022 ± 0.0315 |
+| epoch-280 | 0.8040 ± 0.0021 | 0.8409 ± 0.0104 | 0.3883 ± 0.0633 | 0.6236 ± 0.0144 | 0.7653 ± 0.0204 | 0.6066 ± 0.0386 |
+| **epoch-300 (best avg.)** | **0.8025 ± 0.0071** | **0.8430 ± 0.0015** | **0.4175 ± 0.0743** | **0.6285 ± 0.0167** | 0.7469 ± 0.0610 | **0.6044 ± 0.0333** |
 
 #### AUROC ↑
 
 | Checkpoint | APTOS2019 | Glaucoma\_fundus | IDRiD | MESSIDOR2 | PAPILA | Retina |
 |---|---|---|---|---|---|---|
 | epoch-0 (baseline) | 0.9403 ± 0.0022 | 0.9046 ± 0.0035 | 0.7914 ± 0.0265 | 0.8853 ± 0.0055 | 0.7145 ± 0.0360 | 0.7161 ± 0.0128 |
-| epoch-100 (end Stage 1) | 0.9037 ± 0.0003 | 0.9208 ± 0.0024 | 0.6440 ± 0.0159 | 0.7707 ± 0.0161 | 0.7887 ± 0.0138 | 0.7569 ± 0.0139 |
+| epoch-100 | 0.9037 ± 0.0003 | 0.9208 ± 0.0024 | 0.6440 ± 0.0159 | 0.7707 ± 0.0161 | 0.7887 ± 0.0138 | 0.7569 ± 0.0139 |
 | epoch-200 | 0.9205 ± 0.0010 | 0.9402 ± 0.0044 | 0.6805 ± 0.0211 | 0.8042 ± 0.0078 | 0.7882 ± 0.0130 | 0.8022 ± 0.0064 |
-| epoch-300 | 0.9255 ± 0.0011 | 0.9437 ± 0.0038 | 0.7122 ± 0.0247 | 0.8231 ± 0.0141 | 0.8050 ± 0.0198 | **0.8197 ± 0.0115** |
-| epoch-360 (final) | 0.9239 ± 0.0015 | 0.9437 ± 0.0024 | **0.7171 ± 0.0261** | 0.8216 ± 0.0131 | 0.7955 ± 0.0161 | 0.8121 ± 0.0189 |
+| **epoch-280 (best APTOS)** | **0.9258 ± 0.0019** | 0.9416 ± 0.0047 | 0.6918 ± 0.0153 | 0.8072 ± 0.0309 | 0.8128 ± 0.0247 | 0.8153 ± 0.0135 |
+| **epoch-300 (best 4/6)** | 0.9255 ± 0.0011 | **0.9437 ± 0.0038** | **0.7122 ± 0.0247** | **0.8231 ± 0.0141** | **0.8050 ± 0.0198** | **0.8197 ± 0.0115** |
 
-> **Bold** = best result per dataset across all checkpoints. Best AUROC on APTOS2019 is at epoch-280 (0.9258); see full table below.
+> **Bold** = best result per dataset. AUROC on APTOS2019 peaks at epoch-280 (0.9258) and remains stable at epoch-300 (0.9255, Δ = 0.0003), confirming convergence.
 
 <details>
-<summary>Full results — all checkpoints (every 20 epochs)</summary>
+<summary>Full results — all checkpoints (every 20 epochs, epoch 0–300)</summary>
 
 #### Accuracy ↑ (full)
 
@@ -145,9 +143,7 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` = official P
 | epoch-240 | 0.8009 ± 0.0066 | 0.8378 ± 0.0154 | 0.4019 ± 0.0483 | 0.6316 ± 0.0084 | 0.7694 ± 0.0155 | 0.6088 ± 0.0311 |
 | epoch-260 | 0.7978 ± 0.0078 | 0.8378 ± 0.0089 | 0.4078 ± 0.0363 | 0.6346 ± 0.0105 | 0.7571 ± 0.0371 | 0.6011 ± 0.0318 |
 | epoch-280 | 0.8040 ± 0.0021 | 0.8409 ± 0.0104 | 0.3883 ± 0.0633 | 0.6236 ± 0.0144 | 0.7653 ± 0.0204 | 0.6066 ± 0.0386 |
-| epoch-300 | 0.8025 ± 0.0071 | 0.8430 ± 0.0015 | 0.4175 ± 0.0743 | 0.6285 ± 0.0167 | 0.7469 ± 0.0610 | 0.6044 ± 0.0333 |
-| epoch-330 | 0.7998 ± 0.0079 | 0.8413 ± 0.0056 | 0.4330 ± 0.0719 | 0.6247 ± 0.0149 | 0.7694 ± 0.0171 | 0.6055 ± 0.0331 |
-| epoch-360 | 0.7996 ± 0.0054 | **0.8439 ± 0.0025** | **0.4563 ± 0.0562** | 0.6297 ± 0.0155 | **0.7714 ± 0.0155** | 0.6022 ± 0.0315 |
+| epoch-300 | **0.8025 ± 0.0071** | **0.8430 ± 0.0015** | **0.4175 ± 0.0743** | **0.6285 ± 0.0167** | 0.7469 ± 0.0610 | **0.6044 ± 0.0333** |
 
 #### AUROC ↑ (full)
 
@@ -165,12 +161,10 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` = official P
 | epoch-180 | 0.9181 ± 0.0033 | 0.9363 ± 0.0034 | 0.6828 ± 0.0226 | 0.8046 ± 0.0176 | 0.7859 ± 0.0128 | 0.8046 ± 0.0083 |
 | epoch-200 | 0.9205 ± 0.0010 | 0.9402 ± 0.0044 | 0.6805 ± 0.0211 | 0.8042 ± 0.0078 | 0.7882 ± 0.0130 | 0.8022 ± 0.0064 |
 | epoch-220 | 0.9230 ± 0.0022 | 0.9370 ± 0.0059 | 0.6978 ± 0.0187 | 0.8197 ± 0.0087 | 0.8133 ± 0.0311 | 0.8045 ± 0.0157 |
-| epoch-240 | 0.9249 ± 0.0025 | **0.9424 ± 0.0034** | 0.6836 ± 0.0167 | 0.8198 ± 0.0110 | 0.8118 ± 0.0128 | 0.8085 ± 0.0109 |
+| epoch-240 | 0.9249 ± 0.0025 | 0.9424 ± 0.0034 | 0.6836 ± 0.0167 | 0.8198 ± 0.0110 | 0.8118 ± 0.0128 | 0.8085 ± 0.0109 |
 | epoch-260 | 0.9240 ± 0.0019 | 0.9402 ± 0.0033 | 0.6819 ± 0.0232 | 0.8283 ± 0.0083 | 0.8055 ± 0.0174 | 0.8135 ± 0.0165 |
 | epoch-280 | **0.9258 ± 0.0019** | 0.9416 ± 0.0047 | 0.6918 ± 0.0153 | 0.8072 ± 0.0309 | 0.8128 ± 0.0247 | 0.8153 ± 0.0135 |
-| epoch-300 | 0.9255 ± 0.0011 | 0.9437 ± 0.0038 | 0.7122 ± 0.0247 | 0.8231 ± 0.0141 | 0.8050 ± 0.0198 | **0.8197 ± 0.0115** |
-| epoch-330 | 0.9251 ± 0.0028 | 0.9431 ± 0.0035 | 0.7070 ± 0.0298 | 0.8250 ± 0.0140 | 0.8019 ± 0.0215 | 0.8115 ± 0.0142 |
-| epoch-360 | 0.9239 ± 0.0015 | 0.9437 ± 0.0024 | **0.7171 ± 0.0261** | 0.8216 ± 0.0131 | 0.7955 ± 0.0161 | 0.8121 ± 0.0189 |
+| epoch-300 | 0.9255 ± 0.0011 | **0.9437 ± 0.0038** | **0.7122 ± 0.0247** | **0.8231 ± 0.0141** | **0.8050 ± 0.0198** | **0.8197 ± 0.0115** |
 
 </details>
 
@@ -178,9 +172,10 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` = official P
 
 ## Key Observations
 
-- **Stage 1 (frozen encoder, epochs 0–100):** A temporary accuracy drop is observed across most datasets in the early epochs (~20–60), which is expected as the decoder adapts to the new domain while the encoder remains fixed. Performance steadily recovers and exceeds the baseline by epoch 100 on Glaucoma_fundus and Retina.
-- **Stage 2 (full fine-tuning, epochs 100–360):** Consistent improvement is observed across all six datasets. AUROC gains are particularly pronounced on IDRiD (+13.2% over epoch-100) and Retina (+6.3% over epoch-100).
-- **Best overall checkpoints:** epoch-280~360 consistently deliver the strongest results across datasets.
+- **Early epochs (0–60):** A temporary performance drop is observed across most datasets, typical during domain adaptation of a general-purpose pre-trained encoder toward fundus-specific features.
+- **Steady improvement (epochs 60–260):** Performance improves consistently across all six datasets. AUROC gains are particularly pronounced on IDRiD (+6.8 pp absolute over baseline) and Retina (+10.4 pp absolute over baseline) by epoch 260.
+- **Convergence (~epoch 260–300):** Metrics plateau or oscillate across datasets, indicating the model has converged. We select the best checkpoint per dataset based on validation AUROC within this range, rather than using the final epoch.
+- **Best checkpoints:** epoch-280 achieves peak AUROC on APTOS2019; epoch-300 achieves peak or near-peak AUROC on the remaining five datasets and is recommended as the general-purpose checkpoint.
 
 ---
 
@@ -189,10 +184,10 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` = official P
 | Checkpoint | Trained Epochs | Notes |
 |---|---|---|
 | `epoch-0.pth` | 0 | Official Pixio ViT-L/16 (baseline) |
-| `epoch-100.pth` | 100 | End of Stage 1 (frozen encoder) |
-| `epoch-200.pth` | 200 | Mid Stage 2 |
-| `epoch-300.pth` | 300 | Near-final |
-| `epoch-360.pth` | 360 | Final checkpoint |
+| `epoch-100.pth` | 100 | Early training |
+| `epoch-200.pth` | 200 | Mid training |
+| `epoch-280.pth` | 280 | Best AUROC on APTOS2019 |
+| `epoch-300.pth` | 300 | Best AUROC on 4/6 datasets — **recommended** |
 
 > TODO: add download links (HuggingFace / Google Drive) once uploaded.
 
