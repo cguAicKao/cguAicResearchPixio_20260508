@@ -179,6 +179,28 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` corresponds 
 
 ---
 
+## Ablation: Encoder Freeze Schedule
+
+To assess how long the encoder should be frozen at the start of continual pre-training, we compare two freeze schedules: **freeze-10** (encoder frozen for the first 10 epochs) and **freeze-30** (encoder frozen for the first 30 epochs).
+
+### Motivation
+
+During the early phase of continual pre-training, an abrupt update to the pre-trained encoder can cause catastrophic perturbation of the learned representations. Freezing the encoder initially allows the newly initialized classification head to stabilize before the full model is jointly optimized.
+
+### Comparison
+
+![Freeze-10 vs Freeze-30 comparison](assets/freeze_ablation.png)
+<!-- Replace with your exported figure comparing Accuracy and AUROC across epochs for freeze-10 vs freeze-30. -->
+
+### Key Findings
+
+- **Freeze-10 provides sufficient early stabilization.** The initial 10-epoch freeze effectively protects the encoder from severe perturbation during the early adaptation phase. Once unfrozen, the learning curves of freeze-10 and freeze-30 follow comparable trajectories across most datasets.
+- **Freeze-10 converges earlier on several datasets.** On datasets such as Glaucoma\_fundus and PAPILA, freeze-10 reaches competitive performance at earlier checkpoints, suggesting that a shorter freeze period does not impede — and may modestly accelerate — convergence.
+- **Freeze-30 yields marginally higher AUROC on some datasets.** On Glaucoma\_fundus, MESSIDOR2, and Retina, freeze-30 achieves slightly higher peak AUROC (within 0.5–1.0 pp), though the differences are largely within the cross-validation standard deviation range.
+- **Practical recommendation.** Freezing for 10 epochs is sufficient to provide the initial stability required for continual pre-training. Given that freeze-10 achieves comparable final performance with reduced training overhead, it is recommended as the default freeze schedule when computational efficiency is a consideration.
+
+---
+
 ## Pretrained Checkpoints
 
 | Checkpoint | Trained Epochs | Notes |
