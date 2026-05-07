@@ -38,7 +38,7 @@ pip install -r requirements.txt
 
 We use a mixed dataset of fundus eye images and natural images for pre-training. Natural images are drawn from ImageNet-1K. Fundus images are clinical retinal photographs provided by **Chang Gung Memorial Hospital (CGMH), Taiwan**, used under an institutional data-sharing agreement for research purposes. We sincerely thank CGMH for providing access to these clinical data.
 
-> If applicable, please add your IRB approval number here, e.g.: *(IRB No. 202XXXXXX-B)*
+> **IRB approval:** *(IRB No. — please fill in)*
 
 ### Launch Pre-training
 
@@ -71,7 +71,7 @@ The following 6 publicly available fundus benchmarks are used for downstream eva
 | [APTOS2019](https://www.kaggle.com/c/aptos2019-blindness-detection) | Diabetic Retinopathy Grading | 5 | 2,048 | 514 | 1,100 |
 | [MESSIDOR2](https://www.adcis.net/en/third-party/messidor2/) | Diabetic Retinopathy Grading | 4 | 972 | 246 | 526 |
 | [Glaucoma_fundus](https://github.com/cc-hpc-itwm/GlaucomaNet) | Glaucoma Detection | 2 | 861 | 218 | 465 |
-| [Retina](https://www.kaggle.com/datasets/jr2ngb/cataract-dataset) | Diabetic Retinopathy Grading | 5 | 336 | 84 | 181 |
+| [Retina](https://www.kaggle.com/datasets/jr2ngb/cataractdataset) | Diabetic Retinopathy Grading | 5 | 336 | 84 | 181 |
 | [IDRiD](https://ieee-dataport.org/open-access/indian-diabetic-retinopathy-image-dataset-idrid) | Diabetic Retinopathy Grading | 5 | 329 | 84 | 103 |
 | [PAPILA](https://figshare.com/articles/dataset/PAPILA/14798004) | Glaucoma Detection | 3 | 311 | 79 | 98 |
 
@@ -81,9 +81,7 @@ The following 6 publicly available fundus benchmarks are used for downstream eva
 ### Launch Evaluation
 
 ```bash
-bash scripts/eval_fivefold_cv.sh \
-  --checkpoint /path/to/epoch-N.pth \
-  --dataset aptos2019
+bash scripts/eval_fivefold_cv.sh
 ```
 
 ---
@@ -92,9 +90,9 @@ bash scripts/eval_fivefold_cv.sh \
 
 All results are mean ± std over 5-fold cross-validation. `epoch-0` corresponds to the **official Pixio ViT-L/16 checkpoint** before any continual pre-training (baseline). Checkpoints are evaluated every 20 epochs and reported up to epoch 300, where performance has converged across all six datasets. The **best checkpoint per dataset** is selected based on validation AUROC and highlighted in bold.
 
-### Training curves
+### Continual Pre-training Experimental Results
 
-![Training curves](assets/training_curves.png)
+![Continual pre-training experimental results](assets/training_curves.png)
 <!-- Replace with your exported figure (Accuracy + AUROC vs. epoch 0–300, 6 datasets). -->
 
 ### Summary table — representative checkpoints
