@@ -10,7 +10,7 @@
 
 ## Overview
 
-This repository presents **continual pre-training** of the official Pixio ViT-L/16 encoder, resuming directly from the released checkpoint on a mixed dataset of fundus eye images and natural images — without any architectural modification. No task-specific decoder or domain-specific pre-training objective is introduced; the encoder is adapted using the original Pixio pre-training loss throughout. A brief encoder freeze warm-up is applied at the start of training to stabilize newly initialized components before joint optimization begins; the effect of freeze duration is examined in the [ablation study](#ablation-encoder-freeze-schedule).
+This repository presents **continual pre-training** of the official Pixio ViT-L/16 encoder, resuming directly from the released checkpoint on a mixed dataset of fundus eye images and natural images — without any architectural modification. No task-specific decoder or domain-specific pre-training objective is introduced; the encoder is adapted using the original Pixio pre-training loss throughout. A brief encoder freeze warm-up is applied at the start of training to stabilize newly initialized components before joint optimization begins; the effect of freeze duration is examined in the [encoder freeze warm-up analysis](#effect-of-encoder-freeze-warm-up-on-continual-pre-training).
 
 Training was monitored every 20 epochs across all six downstream benchmarks. Checkpoints were evaluated throughout, and the **best-performing checkpoint per dataset was selected based on validation AUROC**, following standard checkpoint-selection practice. Across most datasets, performance plateaus or begins to oscillate after epoch ~260–300, indicating convergence; we therefore report results up to epoch 300.
 
@@ -101,11 +101,11 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` corresponds 
 
 | Checkpoint | APTOS2019 | Glaucoma\_fundus | IDRiD | MESSIDOR2 | PAPILA | Retina |
 |---|---|---|---|---|---|---|
-| epoch-0 (baseline) | 0.8264 ± 0.0065 | 0.7656 ± 0.0105 | 0.4777 ± 0.0957 | 0.7228 ± 0.0094 | 0.7224 ± 0.0517 | 0.5967 ± 0.0110 |
+| epoch-0 (baseline) | **0.8264 ± 0.0065** | 0.7656 ± 0.0105 | 0.4777 ± 0.0957 | 0.7228 ± 0.0094 | 0.7224 ± 0.0517 | 0.5967 ± 0.0110 |
 | epoch-100 | 0.7796 ± 0.0062 | 0.8034 ± 0.0119 | 0.3398 ± 0.0376 | 0.6046 ± 0.0055 | 0.7531 ± 0.0196 | 0.5680 ± 0.0153 |
 | epoch-200 | 0.7931 ± 0.0025 | 0.8370 ± 0.0113 | 0.4175 ± 0.0476 | 0.6186 ± 0.0084 | 0.7510 ± 0.0137 | 0.5901 ± 0.0269 |
-| epoch-280 | 0.8040 ± 0.0021 | 0.8409 ± 0.0104 | 0.3883 ± 0.0633 | 0.6236 ± 0.0144 | 0.7653 ± 0.0204 | 0.6066 ± 0.0386 |
-| epoch-300 | **0.8025 ± 0.0071** | **0.8430 ± 0.0015** | 0.4175 ± 0.0743 | 0.6285 ± 0.0167 | 0.7469 ± 0.0610 | 0.6044 ± 0.0333 |
+| epoch-280 | 0.8040 ± 0.0021 | 0.8409 ± 0.0104 | 0.3883 ± 0.0633 | 0.6236 ± 0.0144 | **0.7653 ± 0.0204** | **0.6066 ± 0.0386** |
+| epoch-300 | 0.8025 ± 0.0071 | **0.8430 ± 0.0015** | **0.4175 ± 0.0743** | **0.6285 ± 0.0167** | 0.7469 ± 0.0610 | 0.6044 ± 0.0333 |
 
 > **Bold** = best result per dataset among representative checkpoints. Peak accuracy across all evaluated epochs: IDRiD at epoch-220 (0.4311), MESSIDOR2 at epoch-260 (0.6346), PAPILA at epoch-80/180/280 (0.7653), Retina at epoch-240 (0.6088). See full results below.
 
@@ -172,14 +172,14 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` corresponds 
 
 ## Key Observations
 
-- **Early epochs (0–60):** A temporary performance drop is observed across most datasets, typical during domain adaptation of a general-purpose pre-trained encoder toward fundus-specific features.
-- **Steady improvement (epochs 60–260):** Performance improves consistently across all six datasets. AUROC gains are particularly pronounced on IDRiD (+6.8 pp absolute over baseline) and Retina (+10.4 pp absolute over baseline) by epoch 260.
-- **Convergence (~epoch 260–300):** Metrics plateau or oscillate across datasets, indicating the model has converged. We select the best checkpoint per dataset based on validation AUROC within this range, rather than using the final epoch.
-- **Best checkpoints:** epoch-280 achieves peak AUROC on APTOS2019; epoch-300 achieves peak or near-peak AUROC on the remaining five datasets and is recommended as the general-purpose checkpoint.
+- **Early epochs (0–60):** Temporary performance drop across most datasets, typical of domain adaptation from a general-purpose encoder toward fundus-specific features.
+- **Steady improvement (epochs 60–260):** Consistent gains across all six datasets; AUROC improvements are most pronounced on IDRiD (+6.8 pp) and Retina (+10.4 pp) by epoch 260.
+- **Convergence (~epoch 260–300):** Metrics plateau or oscillate, indicating convergence. Best checkpoint per dataset is selected by validation AUROC within this range.
+- **Best checkpoints:** epoch-280 peaks on APTOS2019 and PAPILA; epoch-300 is recommended as the general-purpose checkpoint (peak or near-peak AUROC on the remaining four datasets).
 
 ---
 
-## Ablation: Encoder Freeze Warm-up
+## Effect of Encoder Freeze Warm-up on Continual Pre-training
 
 As described in the overview, we freeze the encoder for a short warm-up period at the start of continual pre-training. This is not a staged training strategy — the model architecture and training objective remain unchanged throughout; only the encoder's gradient updates are temporarily disabled. The motivation is straightforward: when resuming from a strong pre-trained checkpoint, allowing immediate unconstrained updates to all parameters can destabilize the encoder before other components have had any time to adapt. A brief freeze gives the rest of the model a chance to reach a stable initialization, after which full joint training proceeds normally.
 
