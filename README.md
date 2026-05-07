@@ -179,27 +179,23 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` corresponds 
 
 ---
 
-## Ablation: Encoder Freeze Schedule
+## Ablation: Encoder Freeze Warm-up
 
-To assess how long the encoder should be frozen at the start of continual pre-training, we compare two freeze schedules: **freeze-10** (encoder frozen for the first 10 epochs) and **freeze-30** (encoder frozen for the first 30 epochs).
+As noted in the overview, we apply a short encoder freeze warm-up at the start of continual pre-training. This is distinct from a staged pre-training strategy: no separate pre-training objective, auxiliary task, or architectural change is introduced at any stage — the same Pixio loss is used throughout. The freeze serves purely as an initialization stabilizer: without it, an abrupt full-model update at the very start of training risks catastrophically perturbing the pre-trained encoder representations before newly initialized components have had any chance to adapt.
 
-### Motivation
-
-As noted in the overview, we apply a short encoder freeze warm-up at the start of continual pre-training. This is distinct from a staged pre-training strategy: no separate pre-training objective, auxiliary task, or architecture change is involved at any stage — the same Pixio loss is used throughout. The freeze serves purely as a stabilization warm-up: during the earliest epochs, an abrupt full-model update risks catastrophically perturbing the pre-trained encoder representations before the newly initialized components have had any chance to adapt. Temporarily freezing the encoder allows those components to reach a reasonable initialization, after which joint end-to-end optimization proceeds normally.
-
-This ablation asks how sensitive the final results are to the length of that freeze period, comparing **freeze-10** (encoder frozen for the first 10 epochs) and **freeze-30** (encoder frozen for the first 30 epochs).
+This ablation compares **no-freeze** (encoder updated from epoch 0) against **freeze-enc10** (encoder frozen for the first 10 epochs, then jointly optimized), evaluated on all six downstream benchmarks up to epoch 200 using 5-fold cross-validation AUROC.
 
 ### Comparison
 
-![Freeze-10 vs Freeze-30 comparison](assets/freeze_ablation.png)
-<!-- Replace with your exported figure comparing Accuracy and AUROC across epochs for freeze-10 vs freeze-30. -->
+![No-freeze vs Freeze-enc10 AUROC comparison](assets/freeze_ablation.png)
+<!-- Replace with your exported figure: AUROC vs epoch (0–200), no-freeze (blue solid) vs freeze-enc10 (coral dashed), 6 subplots with unified y-axis. -->
 
 ### Key Findings
 
-- **Freeze-10 provides sufficient early stabilization.** The initial 10-epoch freeze effectively protects the encoder from severe perturbation during the early adaptation phase. Once unfrozen, the learning curves of freeze-10 and freeze-30 follow comparable trajectories across most datasets.
-- **Freeze-10 converges earlier on several datasets.** On datasets such as Glaucoma\_fundus and PAPILA, freeze-10 reaches competitive performance at earlier checkpoints, suggesting that a shorter freeze period does not impede — and may modestly accelerate — convergence.
-- **Freeze-30 yields marginally higher AUROC on some datasets.** On Glaucoma\_fundus, MESSIDOR2, and Retina, freeze-30 achieves slightly higher peak AUROC (within 0.5–1.0 pp), though the differences are largely within the cross-validation standard deviation range.
-- **Practical recommendation.** Freezing for 10 epochs is sufficient to provide the initial stability required for continual pre-training. Given that freeze-10 achieves comparable final performance with reduced training overhead, it is recommended as the default freeze schedule when computational efficiency is a consideration.
+- **No-freeze suffers a severe early performance drop.** Across most datasets, AUROC collapses sharply in the first 20–40 epochs before recovering — most drastically on IDRiD (0.791 → 0.615) and MESSIDOR2 (0.885 → 0.706). This reflects catastrophic perturbation of the pre-trained encoder representations during the initial unconstrained updates.
+- **Freeze-enc10 eliminates the early collapse entirely.** By holding the encoder fixed for the first 10 epochs, the model avoids this destabilization. The first freeze-enc10 checkpoint (epoch-10, after encoder release) already achieves competitive AUROC across all six datasets, with no recovery phase required.
+- **Freeze-enc10 leads throughout the training horizon.** At epoch 200, freeze-enc10 outperforms no-freeze on all six datasets. The gap is most pronounced on Retina (+7.1 pp; 0.873 vs 0.802) and IDRiD (+11.1 pp; 0.792 vs 0.681).
+- **The 10-epoch freeze is a lightweight intervention.** Freezing for only 10 epochs adds negligible overhead relative to a 200-epoch training run, while consistently improving the starting point and final performance. This makes the freeze warm-up the recommended default for continual pre-training from the Pixio checkpoint.
 
 ---
 
