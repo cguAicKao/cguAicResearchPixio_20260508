@@ -69,9 +69,9 @@ The following 6 publicly available fundus benchmarks are used for downstream eva
 | Dataset | Task | Classes | Train | Val | Test |
 |---|---|---|---|---|---|
 | [APTOS2019](https://www.kaggle.com/c/aptos2019-blindness-detection) | Diabetic Retinopathy Grading | 5 | 2,048 | 514 | 1,100 |
-| [MESSIDOR2](https://www.adcis.net/en/third-party/messidor2/) | Diabetic Retinopathy Grading | 4 | 972 | 246 | 526 |
-| [Glaucoma_fundus](https://github.com/cc-hpc-itwm/GlaucomaNet) | Glaucoma Detection | 2 | 861 | 218 | 465 |
-| [Retina](https://www.kaggle.com/datasets/jr2ngb/cataractdataset) | Diabetic Retinopathy Grading | 5 | 336 | 84 | 181 |
+| [MESSIDOR2](https://www.adcis.net/en/third-party/messidor2/) | Diabetic Retinopathy Grading | 5 | 972 | 246 | 526 |
+| [Glaucoma_fundus](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/1YRRAC) | Glaucoma Detection | 3 | 861 | 218 | 465 |
+| [Retina](https://www.kaggle.com/datasets/jr2ngb/cataractdataset) | Diabetic Retinopathy Grading | 4 | 336 | 84 | 181 |
 | [IDRiD](https://ieee-dataport.org/open-access/indian-diabetic-retinopathy-image-dataset-idrid) | Diabetic Retinopathy Grading | 5 | 329 | 84 | 103 |
 | [PAPILA](https://figshare.com/articles/dataset/PAPILA/14798004) | Glaucoma Detection | 3 | 311 | 79 | 98 |
 
@@ -105,7 +105,9 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` corresponds 
 | epoch-100 | 0.7796 ± 0.0062 | 0.8034 ± 0.0119 | 0.3398 ± 0.0376 | 0.6046 ± 0.0055 | 0.7531 ± 0.0196 | 0.5680 ± 0.0153 |
 | epoch-200 | 0.7931 ± 0.0025 | 0.8370 ± 0.0113 | 0.4175 ± 0.0476 | 0.6186 ± 0.0084 | 0.7510 ± 0.0137 | 0.5901 ± 0.0269 |
 | epoch-280 | 0.8040 ± 0.0021 | 0.8409 ± 0.0104 | 0.3883 ± 0.0633 | 0.6236 ± 0.0144 | 0.7653 ± 0.0204 | 0.6066 ± 0.0386 |
-| **epoch-300 (best avg.)** | **0.8025 ± 0.0071** | **0.8430 ± 0.0015** | **0.4175 ± 0.0743** | **0.6285 ± 0.0167** | 0.7469 ± 0.0610 | **0.6044 ± 0.0333** |
+| epoch-300 | **0.8025 ± 0.0071** | **0.8430 ± 0.0015** | 0.4175 ± 0.0743 | 0.6285 ± 0.0167 | 0.7469 ± 0.0610 | 0.6044 ± 0.0333 |
+
+> **Bold** = best result per dataset among representative checkpoints. Peak accuracy across all evaluated epochs: IDRiD at epoch-220 (0.4311), MESSIDOR2 at epoch-260 (0.6346), PAPILA at epoch-80/180/280 (0.7653), Retina at epoch-240 (0.6088). See full results below.
 
 #### AUROC ↑
 
@@ -179,7 +181,7 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` corresponds 
 
 ## Ablation: Encoder Freeze Warm-up
 
-As noted in the overview, we apply a short encoder freeze warm-up at the start of continual pre-training. This is distinct from a staged pre-training strategy: no separate pre-training objective, auxiliary task, or architectural change is introduced at any stage — the same Pixio loss is used throughout. The freeze serves purely as an initialization stabilizer: without it, an abrupt full-model update at the very start of training risks catastrophically perturbing the pre-trained encoder representations before newly initialized components have had any chance to adapt.
+As described in the overview, we freeze the encoder for a short warm-up period at the start of continual pre-training. This is not a staged training strategy — the model architecture and training objective remain unchanged throughout; only the encoder's gradient updates are temporarily disabled. The motivation is straightforward: when resuming from a strong pre-trained checkpoint, allowing immediate unconstrained updates to all parameters can destabilize the encoder before other components have had any time to adapt. A brief freeze gives the rest of the model a chance to reach a stable initialization, after which full joint training proceeds normally.
 
 This ablation compares **no-freeze** (encoder updated from epoch 0) against **freeze-enc10** (encoder frozen for the first 10 epochs, then jointly optimized), evaluated on all six downstream benchmarks up to epoch 200 using 5-fold cross-validation AUROC.
 
@@ -197,10 +199,10 @@ This ablation compares **no-freeze** (encoder updated from epoch 0) against **fr
 
 ### Key Findings
 
-- **No-freeze suffers a severe early performance drop.** Across most datasets, both AUROC and accuracy collapse sharply in the first 20–40 epochs before recovering — most drastically on IDRiD (AUROC: 0.791 → 0.615; accuracy: 0.478 → 0.330) and MESSIDOR2 (AUROC: 0.885 → 0.706; accuracy: 0.723 → 0.578). This reflects catastrophic perturbation of the pre-trained encoder representations during the initial unconstrained updates.
-- **Freeze-enc10 eliminates the early collapse entirely.** By holding the encoder fixed for the first 10 epochs, the model avoids this destabilization. The first freeze-enc10 checkpoint (epoch-10, after encoder release) already achieves competitive performance across all six datasets, with no recovery phase required.
-- **Freeze-enc10 leads throughout the training horizon.** At epoch 200, freeze-enc10 outperforms no-freeze on all six datasets in both metrics. AUROC gains are most pronounced on Retina (+7.1 pp; 0.873 vs 0.802) and IDRiD (+11.1 pp; 0.792 vs 0.681); accuracy gains are largest on IDRiD (+12.4 pp; 0.542 vs 0.417) and MESSIDOR2 (+8.8 pp; 0.706 vs 0.619).
-- **The 10-epoch freeze is a lightweight intervention.** Freezing for only 10 epochs adds negligible overhead relative to a 200-epoch training run, while consistently improving both the starting point and final performance. This makes the freeze warm-up the recommended default for continual pre-training from the Pixio checkpoint.
+- **No-freeze collapses early.** Without a freeze warm-up, both AUROC and accuracy drop sharply in the first 20–40 epochs before recovering. The collapse is most severe on IDRiD (AUROC: 0.791 → 0.615; accuracy: 0.478 → 0.330) and MESSIDOR2 (AUROC: 0.885 → 0.706; accuracy: 0.723 → 0.578).
+- **Freeze-enc10 avoids the collapse entirely.** The first checkpoint after encoder release (epoch-10) already achieves competitive performance across all six datasets — no recovery phase needed.
+- **Freeze-enc10 leads at epoch 200 across all datasets.** AUROC gains over no-freeze are largest on Retina (+7.1 pp; 0.873 vs 0.802) and IDRiD (+11.1 pp; 0.792 vs 0.681); accuracy gains are largest on IDRiD (+12.4 pp; 0.542 vs 0.417) and MESSIDOR2 (+8.8 pp; 0.706 vs 0.619).
+- **The overhead is negligible.** A 10-epoch freeze adds minimal cost to a 200-epoch run and is the recommended default when starting continual pre-training from the Pixio checkpoint.
 
 ---
 
