@@ -116,10 +116,10 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` corresponds 
 | epoch-0 (baseline) | 0.9403 ± 0.0022 | 0.9046 ± 0.0035 | 0.7914 ± 0.0265 | 0.8853 ± 0.0055 | 0.7145 ± 0.0360 | 0.7161 ± 0.0128 |
 | epoch-100 | 0.9037 ± 0.0003 | 0.9208 ± 0.0024 | 0.6440 ± 0.0159 | 0.7707 ± 0.0161 | 0.7887 ± 0.0138 | 0.7569 ± 0.0139 |
 | epoch-200 | 0.9205 ± 0.0010 | 0.9402 ± 0.0044 | 0.6805 ± 0.0211 | 0.8042 ± 0.0078 | 0.7882 ± 0.0130 | 0.8022 ± 0.0064 |
-| **epoch-280 (best APTOS)** | **0.9258 ± 0.0019** | 0.9416 ± 0.0047 | 0.6918 ± 0.0153 | 0.8072 ± 0.0309 | 0.8128 ± 0.0247 | 0.8153 ± 0.0135 |
-| **epoch-300 (best 4/6)** | 0.9255 ± 0.0011 | **0.9437 ± 0.0038** | **0.7122 ± 0.0247** | **0.8231 ± 0.0141** | **0.8050 ± 0.0198** | **0.8197 ± 0.0115** |
+| **epoch-280 (best APTOS, PAPILA)** | **0.9258 ± 0.0019** | 0.9416 ± 0.0047 | 0.6918 ± 0.0153 | 0.8072 ± 0.0309 | **0.8128 ± 0.0247** | 0.8153 ± 0.0135 |
+| **epoch-300 (best 4/6)** | 0.9255 ± 0.0011 | **0.9437 ± 0.0038** | **0.7122 ± 0.0247** | **0.8231 ± 0.0141** | 0.8050 ± 0.0198 | **0.8197 ± 0.0115** |
 
-> **Bold** = best result per dataset. AUROC on APTOS2019 peaks at epoch-280 (0.9258) and remains stable at epoch-300 (0.9255, Δ = 0.0003), confirming convergence.
+> **Bold** = best result per dataset. AUROC on APTOS2019 and PAPILA peaks at epoch-280; epoch-300 achieves peak AUROC on the remaining four datasets (Glaucoma\_fundus, IDRiD, MESSIDOR2, Retina).
 
 <details>
 <summary>Full results — all checkpoints (every 20 epochs, epoch 0–300)</summary>
@@ -163,8 +163,8 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` corresponds 
 | epoch-220 | 0.9230 ± 0.0022 | 0.9370 ± 0.0059 | 0.6978 ± 0.0187 | 0.8197 ± 0.0087 | 0.8133 ± 0.0311 | 0.8045 ± 0.0157 |
 | epoch-240 | 0.9249 ± 0.0025 | 0.9424 ± 0.0034 | 0.6836 ± 0.0167 | 0.8198 ± 0.0110 | 0.8118 ± 0.0128 | 0.8085 ± 0.0109 |
 | epoch-260 | 0.9240 ± 0.0019 | 0.9402 ± 0.0033 | 0.6819 ± 0.0232 | 0.8283 ± 0.0083 | 0.8055 ± 0.0174 | 0.8135 ± 0.0165 |
-| epoch-280 | **0.9258 ± 0.0019** | 0.9416 ± 0.0047 | 0.6918 ± 0.0153 | 0.8072 ± 0.0309 | 0.8128 ± 0.0247 | 0.8153 ± 0.0135 |
-| epoch-300 | 0.9255 ± 0.0011 | **0.9437 ± 0.0038** | **0.7122 ± 0.0247** | **0.8231 ± 0.0141** | **0.8050 ± 0.0198** | **0.8197 ± 0.0115** |
+| epoch-280 | **0.9258 ± 0.0019** | 0.9416 ± 0.0047 | 0.6918 ± 0.0153 | 0.8072 ± 0.0309 | **0.8128 ± 0.0247** | 0.8153 ± 0.0135 |
+| epoch-300 | 0.9255 ± 0.0011 | **0.9437 ± 0.0038** | **0.7122 ± 0.0247** | **0.8231 ± 0.0141** | 0.8050 ± 0.0198 | **0.8197 ± 0.0115** |
 
 </details>
 
@@ -210,8 +210,8 @@ This ablation asks how sensitive the final results are to the length of that fre
 | `epoch-0.pth` | 0 | Official Pixio ViT-L/16 (baseline) |
 | `epoch-100.pth` | 100 | Early training |
 | `epoch-200.pth` | 200 | Mid training |
-| `epoch-280.pth` | 280 | Best AUROC on APTOS2019 |
-| `epoch-300.pth` | 300 | Best AUROC on 4/6 datasets — **recommended** |
+| `epoch-280.pth` | 280 | Best AUROC on APTOS2019 and PAPILA |
+| `epoch-300.pth` | 300 | Best AUROC on 4/6 datasets (Glaucoma\_fundus, IDRiD, MESSIDOR2, Retina) — **recommended** |
 
 > TODO: add download links (HuggingFace / Google Drive) once uploaded.
 
