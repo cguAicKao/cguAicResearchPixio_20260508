@@ -10,7 +10,7 @@
 
 ## Overview
 
-This repository presents **continual pre-training** of the official Pixio ViT-L/16 encoder, resuming directly from the released checkpoint on a mixed dataset of fundus eye images and natural images — without any architectural modification or staged training strategy.
+This repository presents **continual pre-training** of the official Pixio ViT-L/16 encoder, resuming directly from the released checkpoint on a mixed dataset of fundus eye images and natural images — without any architectural modification. No task-specific decoder or domain-specific pre-training objective is introduced; the encoder is adapted using the original Pixio pre-training loss throughout. A brief encoder freeze warm-up is applied at the start of training to stabilize newly initialized components before joint optimization begins; the effect of freeze duration is examined in the [ablation study](#ablation-encoder-freeze-schedule).
 
 Training was monitored every 20 epochs across all six downstream benchmarks. Checkpoints were evaluated throughout, and the **best-performing checkpoint per dataset was selected based on validation AUROC**, following standard checkpoint-selection practice. Across most datasets, performance plateaus or begins to oscillate after epoch ~260–300, indicating convergence; we therefore report results up to epoch 300.
 
@@ -185,7 +185,9 @@ To assess how long the encoder should be frozen at the start of continual pre-tr
 
 ### Motivation
 
-During the early phase of continual pre-training, an abrupt update to the pre-trained encoder can cause catastrophic perturbation of the learned representations. Freezing the encoder initially allows the newly initialized classification head to stabilize before the full model is jointly optimized.
+As noted in the overview, we apply a short encoder freeze warm-up at the start of continual pre-training. This is distinct from a staged pre-training strategy: no separate pre-training objective, auxiliary task, or architecture change is involved at any stage — the same Pixio loss is used throughout. The freeze serves purely as a stabilization warm-up: during the earliest epochs, an abrupt full-model update risks catastrophically perturbing the pre-trained encoder representations before the newly initialized components have had any chance to adapt. Temporarily freezing the encoder allows those components to reach a reasonable initialization, after which joint end-to-end optimization proceeds normally.
+
+This ablation asks how sensitive the final results are to the length of that freeze period, comparing **freeze-10** (encoder frozen for the first 10 epochs) and **freeze-30** (encoder frozen for the first 30 epochs).
 
 ### Comparison
 
