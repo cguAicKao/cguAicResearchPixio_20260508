@@ -187,15 +187,22 @@ This ablation compares **no-freeze** (encoder updated from epoch 0) against **fr
 
 ### Comparison
 
-![No-freeze vs Freeze-enc10 AUROC comparison](assets/freeze_ablation.png)
-<!-- Replace with your exported figure: AUROC vs epoch (0–200), no-freeze (blue solid) vs freeze-enc10 (coral dashed), 6 subplots with unified y-axis. -->
+#### AUROC ↑
+
+![No-freeze vs Freeze-enc10 AUROC comparison](assets/freeze_ablation_auroc.png)
+<!-- Replace with your exported figure: AUROC vs epoch (0–200), no-freeze (blue solid) vs freeze-enc10 (coral dashed), 6 subplots with unified y-axis (0.58–0.98). -->
+
+#### Accuracy ↑
+
+![No-freeze vs Freeze-enc10 Accuracy comparison](assets/freeze_ablation_accuracy.png)
+<!-- Replace with your exported figure: Accuracy vs epoch (0–200), no-freeze (blue solid) vs freeze-enc10 (coral dashed), 6 subplots with unified y-axis (0.24–0.96). -->
 
 ### Key Findings
 
-- **No-freeze suffers a severe early performance drop.** Across most datasets, AUROC collapses sharply in the first 20–40 epochs before recovering — most drastically on IDRiD (0.791 → 0.615) and MESSIDOR2 (0.885 → 0.706). This reflects catastrophic perturbation of the pre-trained encoder representations during the initial unconstrained updates.
-- **Freeze-enc10 eliminates the early collapse entirely.** By holding the encoder fixed for the first 10 epochs, the model avoids this destabilization. The first freeze-enc10 checkpoint (epoch-10, after encoder release) already achieves competitive AUROC across all six datasets, with no recovery phase required.
-- **Freeze-enc10 leads throughout the training horizon.** At epoch 200, freeze-enc10 outperforms no-freeze on all six datasets. The gap is most pronounced on Retina (+7.1 pp; 0.873 vs 0.802) and IDRiD (+11.1 pp; 0.792 vs 0.681).
-- **The 10-epoch freeze is a lightweight intervention.** Freezing for only 10 epochs adds negligible overhead relative to a 200-epoch training run, while consistently improving the starting point and final performance. This makes the freeze warm-up the recommended default for continual pre-training from the Pixio checkpoint.
+- **No-freeze suffers a severe early performance drop.** Across most datasets, both AUROC and accuracy collapse sharply in the first 20–40 epochs before recovering — most drastically on IDRiD (AUROC: 0.791 → 0.615; accuracy: 0.478 → 0.330) and MESSIDOR2 (AUROC: 0.885 → 0.706; accuracy: 0.723 → 0.578). This reflects catastrophic perturbation of the pre-trained encoder representations during the initial unconstrained updates.
+- **Freeze-enc10 eliminates the early collapse entirely.** By holding the encoder fixed for the first 10 epochs, the model avoids this destabilization. The first freeze-enc10 checkpoint (epoch-10, after encoder release) already achieves competitive performance across all six datasets, with no recovery phase required.
+- **Freeze-enc10 leads throughout the training horizon.** At epoch 200, freeze-enc10 outperforms no-freeze on all six datasets in both metrics. AUROC gains are most pronounced on Retina (+7.1 pp; 0.873 vs 0.802) and IDRiD (+11.1 pp; 0.792 vs 0.681); accuracy gains are largest on IDRiD (+12.4 pp; 0.542 vs 0.417) and MESSIDOR2 (+8.8 pp; 0.706 vs 0.619).
+- **The 10-epoch freeze is a lightweight intervention.** Freezing for only 10 epochs adds negligible overhead relative to a 200-epoch training run, while consistently improving both the starting point and final performance. This makes the freeze warm-up the recommended default for continual pre-training from the Pixio checkpoint.
 
 ---
 
