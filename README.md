@@ -172,10 +172,9 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` corresponds 
 
 ## Key Observations
 
-- **Early epochs (0–60):** Temporary performance drop across most datasets, typical of domain adaptation from a general-purpose encoder toward fundus-specific features.
-- **Steady improvement (epochs 60–260):** Consistent gains across all six datasets; AUROC improvements are most pronounced on IDRiD (+6.8 pp) and Retina (+10.4 pp) by epoch 260.
-- **Convergence (~epoch 260–300):** Metrics plateau or oscillate, indicating convergence. Best checkpoint per dataset is selected by validation AUROC within this range.
-- **Best checkpoints:** epoch-280 peaks on APTOS2019 and PAPILA; epoch-300 is recommended as the general-purpose checkpoint (peak or near-peak AUROC on the remaining four datasets).
+- **Early epochs (0–60):** Temporary performance drop across most datasets, consistent with initial instability during domain adaptation.
+- **Epochs 60–300:** Performance recovers and improves steadily across all six datasets, with the most notable gains on Retina and PAPILA.
+- **Best checkpoints:** epoch-280 on APTOS2019 and PAPILA; epoch-300 recommended as the general-purpose checkpoint, achieving peak or near-peak AUROC on the remaining four datasets.
 
 ---
 
@@ -199,10 +198,10 @@ This ablation compares **no-freeze** (encoder updated from epoch 0) against **fr
 
 ### Key Findings
 
-- **No-freeze collapses early.** Without a freeze warm-up, both AUROC and accuracy drop sharply in the first 20–40 epochs before recovering. The collapse is most severe on IDRiD (AUROC: 0.791 → 0.615; accuracy: 0.478 → 0.330) and MESSIDOR2 (AUROC: 0.885 → 0.706; accuracy: 0.723 → 0.578).
-- **Freeze-enc10 avoids the collapse entirely.** The first checkpoint after encoder release (epoch-10) already achieves competitive performance across all six datasets — no recovery phase needed.
-- **Freeze-enc10 leads at epoch 200 across all datasets.** AUROC gains over no-freeze are largest on Retina (+7.1 pp; 0.873 vs 0.802) and IDRiD (+11.1 pp; 0.792 vs 0.681); accuracy gains are largest on IDRiD (+12.4 pp; 0.542 vs 0.417) and MESSIDOR2 (+8.8 pp; 0.706 vs 0.619).
-- **The overhead is negligible.** A 10-epoch freeze adds minimal cost to a 200-epoch run and is the recommended default when starting continual pre-training from the Pixio checkpoint.
+- **No-freeze collapses early.** Both AUROC and accuracy drop sharply in the first 20–40 epochs before recovering, with the most severe collapse observed on IDRiD and MESSIDOR2.
+- **Freeze-enc10 avoids the collapse entirely.** Performance is already competitive at the first checkpoint after encoder release, with no recovery phase needed.
+- **Freeze-enc10 leads at epoch 200 across all datasets.** Gains are most pronounced on Retina and IDRiD for AUROC, and on IDRiD and MESSIDOR2 for accuracy.
+- **Overhead is negligible.** A 10-epoch freeze adds minimal cost and is the recommended default when resuming continual pre-training from the Pixio checkpoint.
 
 ---
 
