@@ -73,7 +73,7 @@ The following 6 publicly available fundus benchmarks are used for downstream eva
 | [IDRiD](https://ieee-dataport.org/open-access/indian-diabetic-retinopathy-image-dataset-idrid) | 5 | 329 | 84 | 103 |
 | [PAPILA](https://figshare.com/articles/dataset/PAPILA/14798004) | 3 | 311 | 79 | 98 |
 
-![Dataset sample distribution](assets/dataset_splits.png)
+![Dataset sample distribution](assets/dataset_splits_update.png)
 <!-- Replace with your exported grouped bar chart (Train / Val / Test per dataset). -->
 
 ### Launch Evaluation
