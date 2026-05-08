@@ -219,8 +219,6 @@ This section compares **no-freeze** (encoder updated from epoch 0) against **fre
 
 ## Reference
 
-If you use this work, please cite the original Pixio paper:
-
 ```bibtex
 @article{pixio,
   title={In Pursuit of Pixel Supervision for Visual Pre-training},
