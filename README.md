@@ -229,7 +229,3 @@ This section compares **no-freeze** (encoder updated from epoch 0) against **fre
 ```
 
 ---
-
-## Acknowledgement
-
-This work builds directly on [Pixio](https://github.com/facebookresearch/pixio) (Facebook Research). We sincerely thank the original authors for open-sourcing their codebase and pre-trained models.
