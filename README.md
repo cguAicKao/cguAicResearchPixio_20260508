@@ -36,7 +36,7 @@ pip install -r requirements.txt
 
 ### Data
 
-We use a mixed dataset of fundus eye images and natural images for pre-training. Natural images are drawn from ImageNet-1K. Fundus images are clinical retinal photographs provided by open dataset, used under an institutional data-sharing agreement for research purposes. We sincerely thank CGMH for providing access to these clinical data.
+We use a mixed dataset of fundus eye images and natural images for pre-training. Natural images are drawn from ImageNet-1K. Fundus images are clinical retinal photographs provided by open dataset, used under an institutional data-sharing agreement for research purposes.
 
 ### Launch Pre-training
 
