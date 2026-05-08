@@ -64,14 +64,14 @@ Downstream evaluation is performed by loading each saved checkpoint and running 
 
 The following 6 publicly available fundus benchmarks are used for downstream evaluation. Dataset splits follow the original papers or standard community splits.
 
-| Dataset | Task | Classes | Train | Val | Test |
+| Dataset  | Classes | Train | Val | Test |
 |---|---|---|---|---|---|
-| [APTOS2019](https://www.kaggle.com/c/aptos2019-blindness-detection) | Diabetic Retinopathy Grading | 5 | 2,048 | 514 | 1,100 |
-| [MESSIDOR2](https://www.adcis.net/en/third-party/messidor2/) | Diabetic Retinopathy Grading | 5 | 972 | 246 | 526 |
-| [Glaucoma_fundus](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/1YRRAC) | Glaucoma Detection | 3 | 861 | 218 | 465 |
-| [Retina](https://www.kaggle.com/datasets/jr2ngb/cataractdataset) | Diabetic Retinopathy Grading | 4 | 336 | 84 | 181 |
-| [IDRiD](https://ieee-dataport.org/open-access/indian-diabetic-retinopathy-image-dataset-idrid) | Diabetic Retinopathy Grading | 5 | 329 | 84 | 103 |
-| [PAPILA](https://figshare.com/articles/dataset/PAPILA/14798004) | Glaucoma Detection | 3 | 311 | 79 | 98 |
+| [APTOS2019](https://www.kaggle.com/c/aptos2019-blindness-detection)  | 5 | 2,048 | 514 | 1,100 |
+| [MESSIDOR2](https://www.adcis.net/en/third-party/messidor2/)  | 5 | 972 | 246 | 526 |
+| [Glaucoma_fundus](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/1YRRAC)  | 3 | 861 | 218 | 465 |
+| [Retina](https://www.kaggle.com/datasets/jr2ngb/cataractdataset)  | 4 | 336 | 84 | 181 |
+| [IDRiD](https://ieee-dataport.org/open-access/indian-diabetic-retinopathy-image-dataset-idrid)  | 5 | 329 | 84 | 103 |
+| [PAPILA](https://figshare.com/articles/dataset/PAPILA/14798004)  | 3 | 311 | 79 | 98 |
 
 ![Dataset sample distribution](assets/dataset_splits.png)
 <!-- Replace with your exported grouped bar chart (Train / Val / Test per dataset). -->
