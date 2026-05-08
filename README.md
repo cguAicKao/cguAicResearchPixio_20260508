@@ -107,7 +107,7 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` corresponds 
 | epoch-280 | 0.8040 ± 0.0021 | 0.8409 ± 0.0104 | 0.3883 ± 0.0633 | 0.6236 ± 0.0144 | **0.7653 ± 0.0204** | **0.6066 ± 0.0386** |
 | epoch-300 | 0.8025 ± 0.0071 | **0.8430 ± 0.0015** | **0.4175 ± 0.0743** | **0.6285 ± 0.0167** | 0.7469 ± 0.0610 | 0.6044 ± 0.0333 |
 
-> **Bold** = best result per dataset among representative checkpoints. Peak accuracy across all evaluated epochs: IDRiD at epoch-220 (0.4311), MESSIDOR2 at epoch-260 (0.6346), PAPILA at epoch-80/180/280 (0.7653), Retina at epoch-240 (0.6088). See full results below.
+> **Bold** = best result per dataset among representative checkpoints.
 
 #### AUROC ↑
 
@@ -180,9 +180,9 @@ All results are mean ± std over 5-fold cross-validation. `epoch-0` corresponds 
 
 ## Effect of Encoder Freeze Warm-up on Continual Pre-training
 
-As described in the overview, we freeze the encoder for a short warm-up period at the start of continual pre-training. This is not a staged training strategy — the model architecture and training objective remain unchanged throughout; only the encoder's gradient updates are temporarily disabled. The motivation is straightforward: when resuming from a strong pre-trained checkpoint, allowing immediate unconstrained updates to all parameters can destabilize the encoder before other components have had any time to adapt. A brief freeze gives the rest of the model a chance to reach a stable initialization, after which full joint training proceeds normally.
+During continual pre-training, the decoder must adapt to a new image domain while the encoder begins from a strong pre-trained initialization. In early training, the decoder is far from convergence and produces unstable gradients that propagate back through the encoder — effectively pulling the encoder away from its pre-trained representation before it can perform meaningful feature extraction. Freezing the encoder for a short initial period allows the decoder to reach a stable initialization independently, after which full joint training proceeds without this interference.
 
-This ablation compares **no-freeze** (encoder updated from epoch 0) against **freeze-enc10** (encoder frozen for the first 10 epochs, then jointly optimized), evaluated on all six downstream benchmarks up to epoch 200 using 5-fold cross-validation AUROC.
+This section compares **no-freeze** (encoder updated from epoch 0) against **freeze-enc10** (encoder frozen for the first 10 epochs), evaluated on all six downstream benchmarks up to epoch 200 using 5-fold cross-validation AUROC.
 
 ### Comparison
 
