@@ -28,7 +28,7 @@ conda activate fundus-pixio
 pip install -r requirements.txt
 ```
 
-**Hardware:** 2× NVIDIA A6000 GPUs
+**Hardware:** 2× NVIDIA RTX PRO 6000 GPUs
 
 ---
 
@@ -36,9 +36,7 @@ pip install -r requirements.txt
 
 ### Data
 
-We use a mixed dataset of fundus eye images and natural images for pre-training. Natural images are drawn from ImageNet-1K. Fundus images are clinical retinal photographs provided by **Chang Gung Memorial Hospital (CGMH), Taiwan**, used under an institutional data-sharing agreement for research purposes. We sincerely thank CGMH for providing access to these clinical data.
-
-> **IRB approval:** *(IRB No. — please fill in)*
+We use a mixed dataset of fundus eye images and natural images for pre-training. Natural images are drawn from ImageNet-1K. Fundus images are clinical retinal photographs provided by open dataset, used under an institutional data-sharing agreement for research purposes. We sincerely thank CGMH for providing access to these clinical data.
 
 ### Launch Pre-training
 
@@ -219,7 +217,7 @@ This section compares **no-freeze** (encoder updated from epoch 0) against **fre
 
 ---
 
-## Citation
+## Reference
 
 If you use this work, please cite the original Pixio paper:
 
